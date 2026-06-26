@@ -125,3 +125,23 @@ if not st.session_state.authenticated:
 else:
     st.sidebar.success(f"Logged in as {st.session_state.name}")
     run_genai_chat(st.session_state.name, st.session_state.gender)
+
+
+
+# If the interviewer asks:
+# "Explain app.py in one minute."
+
+# Say this:
+# app.py is the main controller of my application. It initializes the Streamlit interface and manages the complete user workflow using Session State. First, it checks whether the user is authenticated. If not, it displays the Login, Registration, or Forgot Password page based on the current application state. During registration, it securely stores user details using bcrypt hashing. During login, it authenticates users and creates a session. The Forgot Password flow generates a six-digit OTP, sends it via email, verifies the OTP, and updates the password securely. After successful authentication, the application routes the user to the AI chatbot by calling run_genai_chat(), passing user information for a personalized experience. Since Streamlit reruns the script on every interaction, Session State is used to preserve login status, navigation state, and user information throughout the session.
+
+
+# | Question                                                            | Short Answer                                                                                                                                  |
+# | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+# | Why is `app.py` needed?                                             | It is the entry point and controller of the application.                                                                                      |
+# | Why use Session State?                                              | To preserve data because Streamlit reruns the script after every interaction.                                                                 |
+# | Why separate `user_auth.py`, `email_utils.py`, and `sample_app.py`? | To follow modular design and the Single Responsibility Principle, making the code easier to maintain and test.                                |
+# | What happens after successful login?                                | User details are stored in Session State and the chatbot interface is loaded.                                                                 |
+# | Why use forms (`st.form`)?                                          | To group related inputs and process them only when the user clicks Submit, instead of rerunning on every keystroke.                           |
+# | How is navigation handled?                                          | By updating Session State flags (`register_mode`, `forgot_password_mode`) instead of creating multiple pages.                                 |
+# | What if the user enters a wrong OTP?                                | The OTP is compared with the one stored in Session State, and an error is displayed if they don't match.                                      |
+# | What if the email doesn't exist?                                    | The application checks the database first using `check_email_exists()` and stops the process with an error message if the email is not found. |

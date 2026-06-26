@@ -240,3 +240,25 @@ def run_genai_chat(name,gender):
             st.rerun()
 
 
+
+
+# ⭐ One-Minute Interview Answer
+# sample_app.py is the main chatbot module of FeelBuddy. After a user logs in, it initializes the chat interface and manages the entire conversation. 
+# It stores chat history using Streamlit Session State, supports both text and voice interactions, detects the user's language for multilingual 
+# communication, and sends the conversation history to the Groq Llama 3 model to generate context-aware responses. It also performs simple 
+# keyword-based mood detection and recommends videos, music, or counselor resources based on the detected mood. Finally, it updates the chat history 
+# and refreshes the interface to display the latest AI response, creating an interactive and personalized mental health support experience.
+# 
+
+
+# ⭐ Most Common Interview Questions
+# Question	Short Answer : 
+
+# Why use Session State?  -> To preserve chat history, user preferences, and UI state because Streamlit reruns the script on every interaction.
+# Why pass the entire conversation to the LLM?	So the model has context and can generate coherent, conversational responses instead of treating each message independently.
+# How does mood detection work?	A keyword-based function checks the user's message for predefined emotional keywords such as "sad", "angry", or "depressed".
+# How is multilingual support implemented?	The user's language is detected before the request, and responses are translated back if the LLM returns a different language.
+# How does voice chat work?	Speech is converted to text using speech recognition, processed by the chatbot, and the response can be converted back to speech using text-to-speech.
+# Why use dictionaries for videos and music?	They provide a simple, fast way to map detected moods to relevant recommendations without requiring additional database queries.
+# Why call st.rerun()?	To immediately refresh the Streamlit interface and display the newly generated response.
+# How is the AI response generated?	The conversation history is sent to the Groq API using the Llama 3 model, which generates a context-aware reply.
