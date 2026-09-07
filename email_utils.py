@@ -13,6 +13,14 @@ def send_otp_email(to_email, otp):
     email_sender = os.getenv("SENDER_EMAIL")
     email_password = os.getenv("SENDER_PASS")  # Use app password (not your Gmail password)
 
+    if not email_sender or not email_password:
+        try:
+            import streamlit as st
+            email_sender = email_sender or st.secrets.get("SENDER_EMAIL")
+            email_password = email_password or st.secrets.get("SENDER_PASS")
+        except Exception:
+            pass
+
     subject = 'Password Reset OTP for SupportiveGPT'
     body = f'Your OTP for password reset is: {otp}'
 
