@@ -15,24 +15,53 @@ def get_initial_message():
         {"role": "assistant", "content": "Hello Buddy! How can I help you?"}
     ]
 
-def get_groq_response(messages, model="llama-3.1-8b-instant"):
+def get_groq_response(messages, model="qwen/qwen3.8-27b"):
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        try:
+            import streamlit as st
+            api_key = st.secrets.get("GROQ_API_KEY")
+        except Exception:
+            pass
+
+    if not api_key:
+        raise Exception("GROQ_API_KEY is not set in environment variables or Streamlit secrets.")
+
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
-    payload = {
-        "model": model,
-        "messages": messages,
-        "max_tokens": 200,
-        "temperature": 0.7
-    }
 
-    response = requests.post(url, headers=headers, json=payload)
-    if response.status_code == 200:
-        return response.json()["choices"][0]["message"]["content"]
-    else:
-        raise Exception(f"Groq API Error: {response.status_code} - {response.text}")
+    # List of candidate models for robust fallback
+    candidates = [model, "groq/compound-mini", "openai/gpt-oss-120b"]
+    # Preserve order while removing duplicates/empty
+    seen = set()
+    candidate_models = []
+    for c in candidates:
+        if c and c not in seen:
+            seen.add(c)
+            candidate_models.append(c)
+
+    last_error = None
+    for candidate in candidate_models:
+        payload = {
+            "model": candidate,
+            "messages": messages,
+            "max_tokens": 200,
+            "temperature": 0.7
+        }
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=15)
+            if response.status_code == 200:
+                return response.json()["choices"][0]["message"]["content"]
+            else:
+                last_error = Exception(f"Groq API Error ({candidate}): {response.status_code} - {response.text}")
+        except Exception as e:
+            last_error = e
+
+    if last_error:
+        raise last_error
 
 def update_chat(messages, role, content):
     messages.append({"role": role, "content": content})
